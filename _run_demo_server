@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Recompile
+mvn clean install
+
+# Check if compiled ok
+if [ $? -ne 0 ]; then
+    echo "error: failed to compile" >&2
+    exit 1
+fi
+
+# Usage for server:
+# ca.dimon.aeronmessaging.server.demo directory local-address local-initial-data-port local-initial-control-port local-clients-base-port client-count
+
+AERON_SERVER_IP=127.0.0.1
+AERON_SERVER_DATA_PORT=44000
+AERON_SERVER_CONTROL_PORT=44001
+AERON_SERVER_DATA_DIR=/run/shm/aeronmessaging-demo-server
+MAIN_CLASS=ca.dimon.aeronmessaging.server.AeronMessagingServer
+
+# Let's rock!
+JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 \
+  mvn \
+  "-Dexec.args=-classpath %classpath ${MAIN_CLASS} ${AERON_SERVER_DATA_DIR} ${AERON_SERVER_IP} ${AERON_SERVER_DATA_PORT} ${AERON_SERVER_CONTROL_PORT} 55000 100" \
+   -Dexec.executable=/usr/lib/jvm/java-8-openjdk-amd64/bin/java \
+   org.codehaus.mojo:exec-maven-plugin:1.5.0:exec

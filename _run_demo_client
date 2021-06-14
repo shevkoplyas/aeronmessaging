@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Recompile
+mvn clean install
+
+# Check if compiled ok
+#if [ $? -ne 0 ]; then
+#    echo "error: failed to compile" >&2
+#    exit 1
+#fi
+
+# FOR CLIENT:
+# 00:19:45.559 ERROR [main] com.io7m.aeron_guide.take2.EchoClient: usage: directory remote-address remote-data-port remote-control-port
+#
+# FOR SERVER
+
+AERON_SERVER_PORT=33000
+# AERON_SERVER_IP=cloud.dimon.ca  # TODO: fix: why this doesn't work by the DNS name?
+# Exception in thread "main" io.aeron.exceptions.RegistrationException: java.net.UnknownHostException: could not resolve control address: cloud.dimon.ca/3.237.0.93:44001
+
+PID=$$
+
+AERON_SERVER_IP=127.0.0.1
+AERON_SERVER_DATA_PORT=44000
+AERON_SERVER_CONTROL_PORT=44001
+
+AERON_CLIENT_PORT=33001
+AERON_CLIENT_IP=0.0.0.0
+
+MAIN_CLASS=ca.dimon.aeronmessaging.client.AeronMessagingClient
+
+# Making own shared-mem-mapped folder for each client
+AERON_CLIENT_DIR=/run/shm/aeronmessaging-demo-client
+
+# Let's rock!
+JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 \
+  mvn \
+  "-Dexec.args=-classpath %classpath ${MAIN_CLASS} ${AERON_CLIENT_DIR} ${AERON_SERVER_IP} ${AERON_SERVER_DATA_PORT} ${AERON_SERVER_CONTROL_PORT}" \
+   -Dexec.executable=/usr/lib/jvm/java-8-openjdk-amd64/bin/java \
+   org.codehaus.mojo:exec-maven-plugin:1.5.0:exec
