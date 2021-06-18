@@ -207,6 +207,25 @@ public final class AeronMessagingClient implements Closeable, Runnable {
     }
 
     /**
+     * Let's move aeron_messaging_server_thread into the class members since
+     * we'll need the reference to that thread if/when server.close() is called
+     * (for example we're shutting down the framework and need to send .close()
+     * to all it's parts/components).
+     *
+     */
+    public Thread aeron_messaging_client_thread = null;
+
+    /**
+     * Let's say client is_alive == true only when its messaging thread
+     * is_alive.
+     *
+     * @return
+     */
+    public boolean is_alive() {
+        return aeron_messaging_client_thread != null && aeron_messaging_client_thread.isAlive();
+    }
+
+    /**
      * The main() f-n is a simple example on how to instantiate and run the
      * AeronMessagingClient class in its own thread. It is not an "entry point"
      * of the class and is here only for the demo purposes. The actual "entry
